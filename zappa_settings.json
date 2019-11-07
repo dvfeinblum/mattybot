@@ -1,0 +1,21 @@
+{
+  "dev": {
+    "app_function": "bot.app",
+    "aws_region": "us-east-1",
+    "profile_name": "default",
+    "project_name": "mattybot",
+    "runtime": "python3.7",
+    "s3_bucket": "mattybot",
+    "memory_size": 128,
+    "exclude": [
+      "README.md",
+      "requirements.txt",
+      "zappa_settings.json",
+      "secrets.yml.template",
+      "LICENSE",
+      ".gitignore"
+    ],
+    "keep_warm": false,
+    "timeout_seconds": 30
+  }
+}

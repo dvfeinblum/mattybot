@@ -27,5 +27,10 @@ def score():
         abort(403)
 
 
+@app.route("/", methods=["GET"])
+def health_check():
+    return "MattyBot is alive and well."
+
+
 if __name__ == "__main__":
     app.run()

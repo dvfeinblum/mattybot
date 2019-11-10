@@ -5,7 +5,7 @@ import logging
 
 from src.dynamo import get_standings, put_data
 from src.fetch_standings import get_raw_standings
-from src.validators import validate_request
+from src.validators import validate_admin_request, validate_slack_request
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @app.route("/score", methods=["POST"])
-@validate_request
+@validate_slack_request
 def score():
     return jsonify(
         response_type="in_channel", text="GOOOAAAAAAL! :ice_hockey_stick_and_puck:",
@@ -26,7 +26,7 @@ def score():
 
 
 @app.route("/standings", methods=["POST"])
-@validate_request
+@validate_slack_request
 def standings():
     return get_standings(request)
 
@@ -37,10 +37,11 @@ def health_check():
 
 
 @app.route("/update_standings", methods=["GET"])
+@validate_admin_request
 def update_standings():
     raw_standings = get_raw_standings()
     put_data(raw_standings)
-    return "Successfully updating standings in Dynamo."
+    return "Successfully updated standings in Dynamo."
 
 
 if __name__ == "__main__":

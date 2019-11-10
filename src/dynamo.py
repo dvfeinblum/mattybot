@@ -70,6 +70,6 @@ def put_data(raw_item: dict) -> None:
     :param raw_item: python dict containing your document
     """
     client.put_item(
-            TableName=aws_cfg.get("dynamo", {}).get("bot_state_table"),
-            Item=json.loads(dyn_json.dumps(raw_item))
+        TableName=aws_cfg.get("dynamo", {}).get("bot_state_table"),
+        Item=json.loads(dyn_json.dumps(raw_item)),
     )

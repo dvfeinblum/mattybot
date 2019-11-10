@@ -6,14 +6,14 @@ import hashlib
 import hmac
 import logging
 
-from src.config import slack_cfg
+from src.config import slack_cfg, cfg
 
 VERSION_NUMBER = "v0"
 
 logger = logging.getLogger(__name__)
 
 
-def _is_valid_request(req: request) -> None:
+def _is_valid_slack_request(req: request) -> None:
     """
     This function ensures that the request we received came from Slack.
     Details on the algorithm here can be found at:
@@ -43,10 +43,33 @@ def _is_valid_request(req: request) -> None:
 
 
 # decorator for the above functionality
-def validate_request(func):
+def validate_slack_request(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        _is_valid_request(request)
+        _is_valid_slack_request(request)
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def _is_valid_admin_request(req: request) -> None:
+    """
+    A few of these routes are admin only.
+
+    :param req: incoming request
+    """
+    sent_secret = req.headers.get("X-Admin-Secret")
+    secret = cfg.get("admin", {}).get("secret")
+    if sent_secret != secret:
+        logging.error("Request is improperly signed.")
+        abort(403)
+
+
+# decorator for the above functionality
+def validate_admin_request(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _is_valid_admin_request(request)
         return func(*args, **kwargs)
 
     return wrapper

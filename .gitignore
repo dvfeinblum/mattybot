@@ -1,5 +1,5 @@
 # Project-specific Crap
-secrets.yml
+conf.d/secrets.yml
 .idea/
 
 # Byte-compiled / optimized / DLL files

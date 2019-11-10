@@ -1,7 +1,8 @@
 import boto3
 from collections import OrderedDict
 from dynamodb_json import json_util as dyn_json
-from flask import jsonify, request
+import json
+from flask import jsonify, request, Response
 from src.config import aws_cfg
 
 client = boto3.client("dynamodb")
@@ -29,7 +30,7 @@ def parse_all_stats(stat_blob: dict) -> str:
     )
 
 
-def get_standings(req: request):
+def get_standings(req: request) -> Response:
     """
     Returns league standings information. If a valid team name is provided,
     that team's data will be highlighted.
@@ -60,3 +61,15 @@ def get_standings(req: request):
         )
 
     return jsonify(response_type="in_channel", text=text)
+
+
+def put_data(raw_item: dict) -> None:
+    """
+    Puts python dicts into the bot_state_table in dynamo.
+
+    :param raw_item: python dict containing your document
+    """
+    client.put_item(
+            TableName=aws_cfg.get("dynamo", {}).get("bot_state_table"),
+            Item=json.loads(dyn_json.dumps(raw_item))
+    )

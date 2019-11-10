@@ -3,7 +3,8 @@ from os import environ
 from flask import Flask, jsonify, request
 import logging
 
-from src.dynamo import get_standings
+from src.dynamo import get_standings, put_data
+from src.fetch_standings import get_raw_standings
 from src.validators import validate_request
 
 app = Flask(__name__)
@@ -33,6 +34,13 @@ def standings():
 @app.route("/", methods=["GET"])
 def health_check():
     return "MattyBot is alive and well."
+
+
+@app.route("/update_standings", methods=["GET"])
+def update_standings():
+    raw_standings = get_raw_standings()
+    put_data(raw_standings)
+    return "Successfully updating standings in Dynamo."
 
 
 if __name__ == "__main__":

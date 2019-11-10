@@ -1,27 +1,41 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from collections import OrderedDict
 from dynamodb_json import json_util as dyn_json
 import json
 from flask import jsonify, request, Response
 from src.config import aws_cfg
 
-client = boto3.client("dynamodb")
+dynamodb_resource = boto3.resource("dynamodb")
+table = dynamodb_resource.Table(aws_cfg.get("dynamo", {}).get("bot_state_table"))
 
 
 def parse_team_stats(stat_blob: dict) -> str:
     """
     Currently, individual team's stats look like this from Dynamo:
 
-    {'wins': 82, 'losses': 0}
-
+    "Hotshots": {
+    "GA": "25",
+    "GF": "27",
+    "GP": "7",
+    "L": "3",
+    "OTL": "0",
+    "PTS": "8",
+    "SOL": "0",
+    "T": "0",
+    "W": "4"
+  }
 
     we turn these into a nice human readable line.
 
     :param stat_blob: dict containing a team's stats
     :return: strified version of this data
     """
+    line = ""
+    for stat, val in stat_blob.items():
+        line += f"{stat}: {val}\t"
 
-    return f"Wins: {stat_blob.get('wins')}\t Losses: {stat_blob.get('losses')}\n"
+    return line + "\n"
 
 
 def parse_all_stats(stat_blob: dict) -> str:
@@ -38,18 +52,13 @@ def get_standings(req: request) -> Response:
     :param req: request object from the slack
     :return: response body containing standings info.
     """
-    team = req.form.get("text").lower()
-    standings = dyn_json.loads(
-        client.get_item(
-            TableName=aws_cfg.get("dynamo", {}).get("bot_state_table"),
-            Key={"key": {"S": "teams"}},
-        ).get("Item")
-    )
+    team = req.form.get("text", "").title()
+    standings = table.get_item(Key={"key": "teams"}).get("Item")
     # We don't need this where we're goin'
     standings.pop("key")
 
     ordered_standings = OrderedDict(
-        sorted(standings.items(), key=lambda kv: kv[1]["wins"], reverse=True)
+        sorted(standings.items(), key=lambda kv: kv[1]["W"], reverse=True)
     )
 
     if team in ordered_standings:
@@ -69,7 +78,4 @@ def put_data(raw_item: dict) -> None:
 
     :param raw_item: python dict containing your document
     """
-    client.put_item(
-        TableName=aws_cfg.get("dynamo", {}).get("bot_state_table"),
-        Item=json.loads(dyn_json.dumps(raw_item)),
-    )
+    table.put_item(Item=raw_item)

@@ -26,6 +26,6 @@ def get_raw_standings():
         if row:
             standings[team] = dict(zip(headers, row[1::]))
 
-    standings["key"] = "teams2"
+    standings["key"] = "teams"
 
     return standings

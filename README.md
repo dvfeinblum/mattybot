@@ -1,5 +1,12 @@
 # mattybot
-slackbot for debaucheries
+Current Slash Commands:
+
+`/score`
+This is basically mattybot's equivalent of a `hello world` command
+
+`/get-standings [team_name]`
+Running this returns a table of the current wins and losses.
+Optionally, you can provide a team name, and then stats will only be shown for that team.
 
 # Local Setup
 This is our simple (for now) slackbot.

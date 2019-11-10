@@ -14,7 +14,7 @@ For slack to be able to communicate with mattybot, we need to be able to verify 
 You'll find `secrets.yml.template` in the route of this project.
 Run
 ```bash
-cp secrets.yml.template secrets.yml
+cp conf.d/secrets.yml.template conf.d/secrets.yml
 ```
 and replace the fake values with real ones.
 Currently this file is a bit bloated and we're only really using the `signing_secret` but those other values might come in handy later on.

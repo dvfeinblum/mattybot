@@ -4,7 +4,7 @@ from flask import Flask, jsonify, request
 import logging
 
 from src.dynamo import get_standings
-from src.utils import validate_request
+from src.validators import validate_request
 
 app = Flask(__name__)
 

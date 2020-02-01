@@ -58,7 +58,7 @@ def get_standings(req: request) -> Response:
     standings.pop("key")
 
     ordered_standings = OrderedDict(
-        sorted(standings.items(), key=lambda kv: int(kv[1]["W"]), reverse=True)
+        sorted(standings.items(), key=lambda kv: int(kv[1]["PTS"]), reverse=True)
     )
 
     if team in ordered_standings:

@@ -1,8 +1,5 @@
 import boto3
-from boto3.dynamodb.conditions import Key
 from collections import OrderedDict
-from dynamodb_json import json_util as dyn_json
-import json
 from flask import jsonify, request, Response
 from src.config import aws_cfg
 
@@ -10,7 +7,7 @@ dynamodb_resource = boto3.resource("dynamodb")
 table = dynamodb_resource.Table(aws_cfg.get("dynamo", {}).get("bot_state_table"))
 
 
-def parse_team_stats(stat_blob: dict) -> str:
+def parse_team_stats(stat_obj: dict) -> str:
     """
     Currently, individual team's stats look like this from Dynamo:
 
@@ -28,32 +25,43 @@ def parse_team_stats(stat_blob: dict) -> str:
 
     we turn these into a nice human readable line.
 
-    :param stat_blob: dict containing a team's stats
+    :param stat_obj: dict containing a team's stats
     :return: strified version of this data
     """
     line = ""
-    for stat, val in stat_blob.items():
+    for stat, val in stat_obj.items():
         line += f"{stat}: {val}\t"
 
     return line + "\n"
 
 
-def parse_all_stats(stat_blob: dict) -> str:
+def parse_all_stats(stat_obj: dict) -> str:
+    """
+    Takes the current state returned from Dynamo and
+    returns it as a text blob ready for slack.
+
+    :param stat_obj: Dict containing all the standings
+    :return: String that will be sent to Slack
+    """
     return "\n".join(
-        [f"*{team}*\n{parse_team_stats(stats)}" for team, stats in stat_blob.items()]
+        [f"*{team}*\n{parse_team_stats(stats)}" for team, stats in stat_obj.items()]
     )
 
 
 def get_standings(req: request) -> Response:
     """
     Returns league standings information. If a valid team name is provided,
-    that team's data will be highlighted.
+    only that team's data will be highlighted.
 
     :param req: request object from the slack
     :return: response body containing standings info.
     """
     team = req.form.get("text", "").title()
-    standings = table.get_item(Key={"key": "teams"}).get("Item")
+    standings = table.get_item(Key={"key": "teams"}).get("Item", None)
+
+    if not standings:
+        raise ValueError("Dynamo didn't return any data.")
+
     # We don't need this where we're goin'
     standings.pop("key")
 

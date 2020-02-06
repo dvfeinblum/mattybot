@@ -31,13 +31,13 @@ def _is_valid_slack_request(req: request) -> None:
     req_data = req.get_data().decode("utf-8")
     logger.debug("Request data:" + req_data)
     basestring = f"{VERSION_NUMBER}:{req_timestamp}:{req_data}".encode("utf-8")
-    my_signature = (
+    expected_signature = (
         "v0="
         + hmac.new(
             slack_cfg.get("signing_secret").encode("utf-8"), basestring, hashlib.sha256,
         ).hexdigest()
     )
-    if not hmac.compare_digest(my_signature, req_signature):
+    if not hmac.compare_digest(expected_signature, req_signature):
         logging.error("Request is improperly signed.")
         abort(403)
 

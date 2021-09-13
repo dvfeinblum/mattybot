@@ -40,7 +40,7 @@ Once you have it installed, run it in a separate terminal window:
 ```bash
 ngrok http 5000
 ```
-You'll get a forwarding URL which you can set in the slack API UI.
+You'll get a forwarding URL which you can set in the [slack API UI](https://api.slack.com/apps/AQAJRS7L6/slash-commands).
 
 # Deploying
 For now, I'm using `zappa` to automate the lambda deploys, hence the zappa_settings.json.

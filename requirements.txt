@@ -7,3 +7,6 @@ flask>=1.1.1
 pyyaml>=5.1.2
 slackclient>=2.3.1
 zappa>=0.48.2
+
+# transitive issue from zappa
+troposphere<3
